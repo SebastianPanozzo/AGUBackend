@@ -1,0 +1,42 @@
+{
+  "name": "agubackend",
+  "version": "2.0.0",
+  "description": "Backend para Sistema de Gestión Odontológica Ferreyra & Panozzo",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "backup": "node src/firestore-backup.js backup",
+    "restore": "node src/firestore-backup.js restore",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "firebase",
+    "nodejs",
+    "api",
+    "odontologia",
+    "turnos",
+    "mvc"
+  ],
+  "author": "Ferreyra & Panozzo",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "firebase-admin": "^12.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
