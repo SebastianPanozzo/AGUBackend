@@ -12,6 +12,32 @@ class UserModel {
   static collectionName = COLLECTIONS.USERS;
 
   /**
+   * Convierte los Timestamps de Firestore a formato ISO string
+   * @param {object} userData - Datos del usuario desde Firestore
+   * @returns {object} Usuario con fechas convertidas
+   */
+  static convertTimestamps(userData) {
+    const converted = { ...userData };
+    
+    // Convertir birthdate si existe y es un Timestamp
+    if (converted.birthdate && converted.birthdate.toDate) {
+      converted.birthdate = converted.birthdate.toDate().toISOString();
+    }
+    
+    // Convertir createdAt si existe y es un Timestamp
+    if (converted.createdAt && converted.createdAt.toDate) {
+      converted.createdAt = converted.createdAt.toDate().toISOString();
+    }
+    
+    // Convertir updatedAt si existe y es un Timestamp
+    if (converted.updatedAt && converted.updatedAt.toDate) {
+      converted.updatedAt = converted.updatedAt.toDate().toISOString();
+    }
+    
+    return converted;
+  }
+
+  /**
    * Obtener todos los usuarios (sin contraseñas)
    * @returns {Promise<Array>} Lista de usuarios
    */
@@ -24,7 +50,7 @@ class UserModel {
       }
 
       return snapshot.docs.map((doc) => {
-        const userData = doc.data();
+        const userData = this.convertTimestamps(doc.data());
         return excludeFields({ id: doc.id, ...userData }, ["password"]);
       });
     } catch (error) {
@@ -45,7 +71,7 @@ class UserModel {
         return null;
       }
 
-      const userData = doc.data();
+      const userData = this.convertTimestamps(doc.data());
       return excludeFields({ id: doc.id, ...userData }, ["password"]);
     } catch (error) {
       throw new Error(`Error al obtener usuario: ${error.message}`);
@@ -70,9 +96,11 @@ class UserModel {
       }
 
       const doc = snapshot.docs[0];
+      const userData = this.convertTimestamps(doc.data());
+      
       return {
         id: doc.id,
-        ...doc.data(),
+        ...userData,
       };
     } catch (error) {
       throw new Error(`Error al obtener usuario por email: ${error.message}`);
@@ -93,13 +121,16 @@ class UserModel {
       const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+      // Convertir la fecha de nacimiento a Timestamp de Firestore
+      const birthdateTimestamp = new Date(birthdate);
+
       const newUser = {
         name: name.trim(),
         lastname: lastname.trim(),
         email: email.toLowerCase().trim(),
         password: hashedPassword,
         phone: phone.trim(),
-        birthdate: new Date(birthdate),
+        birthdate: birthdateTimestamp,
         role: role || "user",
         state: SESSION_STATES.CLOSED,
         createdAt: new Date(),
@@ -108,10 +139,13 @@ class UserModel {
 
       const docRef = await db.collection(this.collectionName).add(newUser);
 
+      // Obtener el usuario creado con las fechas convertidas
+      const createdUser = this.convertTimestamps(newUser);
+      
       return excludeFields(
         {
           id: docRef.id,
-          ...newUser,
+          ...createdUser,
         },
         ["password"]
       );
@@ -199,7 +233,7 @@ class UserModel {
       }
 
       return snapshot.docs.map((doc) => {
-        const userData = doc.data();
+        const userData = this.convertTimestamps(doc.data());
         return excludeFields({ id: doc.id, ...userData }, ["password"]);
       });
     } catch (error) {
@@ -224,7 +258,7 @@ class UserModel {
       }
 
       return snapshot.docs.map((doc) => {
-        const userData = doc.data();
+        const userData = this.convertTimestamps(doc.data());
         return excludeFields({ id: doc.id, ...userData }, ["password"]);
       });
     } catch (error) {
