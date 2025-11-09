@@ -88,22 +88,35 @@ class AppointmentModel {
    * @param {string} date - Fecha en formato YYYY-MM-DD
    * @returns {Promise<Array>} Lista de turnos de esa fecha
    */
+/**
+ * Obtener turnos por fecha
+ * @param {string} date - Fecha en formato YYYY-MM-DD
+ * @returns {Promise<Array>} Lista de turnos de esa fecha
+ */
   static async getByDate(date) {
     try {
+      // Consulta SIN orderBy para evitar requerir índice compuesto
       const snapshot = await db
         .collection(this.collectionName)
         .where("date", "==", date)
-        .orderBy("startTime", "asc")
         .get();
 
       if (snapshot.empty) {
         return [];
       }
 
-      return snapshot.docs.map((doc) => ({
+      // Ordenar en memoria en lugar de en Firestore
+      const appointments = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+
+      // Ordenar por startTime manualmente
+      return appointments.sort((a, b) => {
+        if (a.startTime < b.startTime) return -1;
+        if (a.startTime > b.startTime) return 1;
+        return 0;
+      });
     } catch (error) {
       throw new Error(`Error al obtener turnos por fecha: ${error.message}`);
     }

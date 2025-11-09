@@ -9,7 +9,7 @@ const rateLimit = require("express-rate-limit");
 // Rate limiting para login (prevenir fuerza bruta)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos
+  max: 20, // máximo 20 intentos
   message: {
     success: false,
     message: "Demasiados intentos de login. Intente nuevamente en 15 minutos.",
@@ -22,7 +22,7 @@ const loginLimiter = rateLimit({
 // Rate limiting para registro
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 3, // máximo 3 registros
+  max: 10, // máximo 10 registros
   message: {
     success: false,
     message: "Demasiados registros. Intente nuevamente en una hora.",
@@ -34,7 +34,7 @@ const registerLimiter = rateLimit({
 // Rate limiting general para API
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests
+  max: 2000, // máximo 2000 requests
   message: {
     success: false,
     message: "Demasiadas peticiones. Intente nuevamente más tarde.",
